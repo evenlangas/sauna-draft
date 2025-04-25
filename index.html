@@ -520,7 +520,7 @@
                 // Adjust base temperature based on location
                 if (location === 'Mandal') outdoorBaseTemp += 2;
                 else if (location === 'Vennesla') outdoorBaseTemp -= 2;
-                else if (location === 'Kristiansand2') outdoorBaseTemp += 1;
+                else if (location === 'Birkeland') outdoorBaseTemp += 1;
                 
                 let outdoorTemp = outdoorBaseTemp + Math.sin(i/24 * Math.PI) * 5 + (Math.random() * 2 - 1);
                 outdoorTemp = Math.round(outdoorTemp * 10) / 10;
@@ -823,21 +823,21 @@
             // Update data based on location
             let temperatures = {
                 'Kristiansand': 60,
-                'Kristiansand2': 65,
+                'Birkeland': 65,
                 'Vennesla': 58,
                 'Mandal': 63
             };
             
             let outdoorTemps = {
                 'Kristiansand': 12,
-                'Kristiansand2': 13,
+                'Birkeland': 13,
                 'Vennesla': 10,
                 'Mandal': 14
             };
             
             let humidities = {
                 'Kristiansand': 45,
-                'Kristiansand2': 48,
+                'Birkeland': 48,
                 'Vennesla': 50,
                 'Mandal': 55
             };

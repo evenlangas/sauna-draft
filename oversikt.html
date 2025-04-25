@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smeigedag Sauna Badstuoversikt</title>
+    <style>
+        :root {
+            --primary: #7F6E7C;
+            --secondary: #a891a4;
+            --success: #78e08f;
+            --danger: #e55039;
+            --warning: #f6b93b;
+            --light: #FAF9FA;
+            --dark: #2c3e50;
+            --pink: #ED7099;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        header h1 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            text-align: center;
+            opacity: 0.8;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+        }
+        
+        .sauna-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .sauna-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .sauna-header {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .sauna-header h2 {
+            font-size: 1.5rem;
+            margin: 0;
+        }
+        
+        .sauna-body {
+            padding: 20px;
+        }
+        
+        .sauna-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-box {
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .stat-box.temperature {
+            background-color: var(--danger);
+        }
+        
+        .stat-box.alarmer {
+            background-color: var(--warning);
+        }
+        
+        .stat-box.heater {
+            background-color: var(--success);
+        }
+        
+        .stat-box.off {
+            background-color: var(--secondary);
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .status-row {
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .indicator-on {
+            background-color: var(--success);
+        }
+        
+        .indicator-off {
+            background-color: var(--dark);
+        }
+        
+        .sauna-footer {
+            background-color: #f8f8f8;
+            padding: 12px 20px;
+            text-align: right;
+            border-top: 1px solid #eee;
+        }
+        
+        .view-button {
+            display: inline-block;
+            background-color: var(--primary);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 4px;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+        
+        .view-button:hover {
+            background-color: var(--secondary);
+        }
+        
+        .alarm-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background-color: var(--danger);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            border: 3px solid white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+        
+        .last-activity {
+            font-size: 0.9rem;
+            color: #666;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 992px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Smeigedag Sauna - Badstuoversikt</h1>
+            <p id="current-time">Sist oppdatert: 25. april 2025, 13:45</p>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="dashboard">
+            <!-- Kristiansand Sauna -->
+            <div class="sauna-card" onclick="location.href='kristiansand.html'">
+                <div class="alarm-badge">3</div>
+                <div class="sauna-header">
+                    <h2>Kristiansand</h2>
+                </div>
+                <div class="sauna-body">
+                    <div class="last-activity">Sist aktiv: I dag 12:30</div>
+                    <div class="sauna-stats">
+                        <div class="stat-box temperature">
+                            <div class="stat-label">Temperatur</div>
+                            <div class="stat-value">72°C</div>
+                        </div>
+                        <div class="stat-box alarmer">
+                            <div class="stat-label">Aktive alarmer</div>
+                            <div class="stat-value">3</div>
+                        </div>
+                        <div class="stat-box heater">
+                            <div class="stat-label">Ovn</div>
+                            <div class="stat-value">PÅ</div>
+                        </div>
+                    </div>
+                    <div class="status-row">
+                        <div class="status-item">
+                            <div class="status-indicator indicator-on"></div>
+                            <span>Dør lukket</span>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-indicator indicator-on"></div>
+                            <span>Scene: Normal-høy</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="sauna-footer">
+                    <a href="kristiansand.html" class="view-button">Se detaljer</a>
+                </div>
+            </div>
+            
+            <!-- Birkeland Sauna -->
+            <div class="sauna-card" onclick="location.href='birkeland.html'">
+                <div class="sauna-header">
+                    <h2>Birkeland</h2>
+                </div>
+                <div class="sauna-body">
+                    <div class="last-activity">Sist aktiv: I dag 09:15</div>
+                    <div class="sauna-stats">
+                        <div class="stat-box temperature">
+                            <div class="stat-label">Temperatur</div>
+                            <div class="stat-value">55°C</div>
+                        </div>
+                        <div class="stat-box alarmer">
+                            <div class="stat-label">Aktive alarmer</div>
+                            <div class="stat-value">0</div>
+                        </div>
+                        <div class="stat-box heater">
+                            <div class="stat-label">Ovn</div>
+                            <div class="stat-value">PÅ</div>
+                        </div>
+                    </div>
+                    <div class="status-row">
+                        <div class="status-item">
+                            <div class="status-indicator indicator-on"></div>
+                            <span>Dør lukket</span>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-indicator indicator-on"></div>
+                            <span>Scene: Normal-lav</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="sauna-footer">
+                    <a href="birkeland.html" class="view-button">Se detaljer</a>
+                </div>
+            </div>
+            
+            <!-- Vennesla Sauna -->
+            <div class="sauna-card" onclick="location.href='vennesla.html'">
+                <div class="alarm-badge">1</div>
+                <div class="sauna-header">
+                    <h2>Vennesla</h2>
+                </div>
+                <div class="sauna-body">
+                    <div class="last-activity">Sist aktiv: I går 18:45</div>
+                    <div class="sauna-stats">
+                        <div class="stat-box temperature">
+                            <div class="stat-label">Temperatur</div>
+                            <div class="stat-value">25°C</div>
+                        </div>
+                        <div class="stat-box alarmer">
+                            <div class="stat-label">Aktive alarmer</div>
+                            <div class="stat-value">1</div>
+                        </div>
+                        <div class="stat-box off">
+                            <div class="stat-label">Ovn</div>
+                            <div class="stat-value">AV</div>
+                        </div>
+                    </div>
+                    <div class="status-row">
+                        <div class="status-item">
+                            <div class="status-indicator indicator-on"></div>
+                            <span>Dør lukket</span>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-indicator indicator-off"></div>
+                            <span>Scene: Closed</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="sauna-footer">
+                    <a href="vennesla.html" class="view-button">Se detaljer</a>
+                </div>
+            </div>
+            
+            <!-- Mandal Sauna -->
+            <div class="sauna-card" onclick="location.href='mandal.html'">
+                <div class="alarm-badge">5</div>
+                <div class="sauna-header">
+                    <h2>Mandal</h2>
+                </div>
+                <div class="sauna-body">
+                    <div class="last-activity">Sist aktiv: I dag 11:20</div>
+                    <div class="sauna-stats">
+                        <div class="stat-box temperature">
+                            <div class="stat-label">Temperatur</div>
+                            <div class="stat-value">68°C</div>
+                        </div>
+                        <div class="stat-box alarmer">
+                            <div class="stat-label">Aktive alarmer</div>
+                            <div class="stat-value">5</div>
+                        </div>
+                        <div class="stat-box heater">
+                            <div class="stat-label">Ovn</div>
+                            <div class="stat-value">PÅ</div>
+                        </div>
+                    </div>
+                    <div class="status-row">
+                        <div class="status-item">
+                            <div class="status-indicator indicator-off"></div>
+                            <span>Dør åpen</span>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-indicator indicator-on"></div>
+                            <span>Scene: Normal-temp</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="sauna-footer">
+                    <a href="mandal.html" class="view-button">Se detaljer</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Update current time
+        function updateCurrentTime() {
+            const now = new Date();
+            const options = { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            document.getElementById('current-time').textContent = 
+                'Sist oppdatert: ' + now.toLocaleDateString('no-NO', options).replace(' kl.', ',');
+        }
+        
+        // Initialize
+        window.onload = function() {
+            updateCurrentTime();
+            
+            // Auto refresh time every minute
+            setInterval(updateCurrentTime, 60000);
+            
+            // This would be where you'd set up real-time updates from your backend
+            // For example, using WebSockets or polling to get the latest sauna statuses
+        };
+    </script>
+</body>
+</html>
