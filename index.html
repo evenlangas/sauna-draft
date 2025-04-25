@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smeigedag Sauna Badstustyring</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        :root {
+            --primary: #7F6E7C;
+            --secondary: #a891a4;
+            --success: #78e08f;
+            --danger: #e55039;
+            --warning: #f6b93b;
+            --light: #FAF9FA;
+            --dark: #2c3e50;
+            --pink: #ED7099;
+        }
+        
+        .logo {
+            width: 50px;
+            height: 50px;
+            background-color: var(--light);
+            color: white;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 5px;
+            margin-right: 15px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 0;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        header h1 {
+            text-align: center;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 20px;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 15px;
+        }
+        
+        .card-header {
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-header h2 {
+            font-size: 1.2rem;
+            color: var(--dark);
+        }
+        
+        .status-widget {
+            grid-column: span 3;
+        }
+        
+        .chart-widget {
+            grid-column: span 6;
+        }
+        
+        .control-widget {
+            grid-column: span 6;
+        }
+        
+        .scenes-widget {
+            grid-column: span 12;
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .status-indicator .label {
+            flex: 1;
+            font-weight: 500;
+        }
+        
+        .status-indicator .value {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            text-align: center;
+            min-width: 80px;
+        }
+        
+        .on {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .off {
+            background-color: var(--light);
+            color: var(--dark);
+        }
+        
+        .hot {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .medium {
+            background-color: var(--warning);
+            color: white;
+        }
+        
+        .cool {
+            background-color: var(--secondary);
+            color: white;
+        }
+        
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .control-group {
+            display: flex;
+            align-items: center;
+        }
+        
+        .control-group .label {
+            flex: 1;
+            font-weight: 500;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--success);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        .scene-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .scene-button {
+            padding: 15px;
+            text-align: center;
+            background-color: var(--light);
+            border: 2px solid transparent;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .scene-button i {
+            font-size: 24px;
+        }
+        
+        .scene-button.active {
+            background-color: var(--secondary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .icon-container {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            margin-bottom: 10px;
+        }
+        
+        /* SVG Icons */
+        .icon-svg {
+            width: 30px;
+            height: 30px;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 250px;
+            width: 100%;
+        }
+        
+        .floorplan {
+            grid-column: span 6;
+            text-align: center;
+        }
+        
+        .floorplan img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        @media (max-width: 992px) {
+            .status-widget, .chart-widget, .control-widget, .floorplan {
+                grid-column: span 6;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .status-widget, .chart-widget, .control-widget, .floorplan, .scenes-widget {
+                grid-column: span 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div style="display: flex; align-items: center;">
+                <div class="logo"><img src="logo.png" width="50px"></div>
+                <h1>Smeigedag Sauna - <span id="current-location">Kristiansand</span></h1>
+            </div>
+            <div style="margin-top: 15px;">
+                <select id="location-selector" onchange="changeLocation(this.value)" style="padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
+                    <option value="Kristiansand">Kristiansand</option>
+                    <option value="Birkeland">Birkeland</option>
+                    <option value="Vennesla">Vennesla</option>
+                    <option value="Mandal">Mandal</option>
+                </select>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="dashboard">
+            <!-- Status Widgets -->
+            <div class="card status-widget">
+                <div class="card-header">
+                    <h2>Status Badstu</h2>
+                </div>
+                <div class="card-body">
+                    <div class="status-indicator">
+                        <div class="label">Temperatur</div>
+                        <div class="value hot" id="badstu-temp">60°C</div>
+                    </div>
+                    <div class="status-indicator">
+                        <div class="label">Dør</div>
+                        <div class="value off" id="badstu-door">Lukket</div>
+                    </div>
+                    <div class="status-indicator">
+                        <div class="label">Ovn</div>
+                        <div class="value on" id="badstu-ovn">På</div>
+                    </div>
+                    <div class="status-indicator">
+                        <div class="label">Aktiv Scene</div>
+                        <div class="value medium" id="active-scene">Normal-temp</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card status-widget">
+                <div class="card-header">
+                    <h2>Mer Info</h2>
+                </div>
+                <div class="card-body">
+                    <div class="status-indicator">
+                        <div class="label">Utetemperatur</div>
+                        <div class="value cool" id="outdoor-temp">12°C</div>
+                    </div>
+                    <div class="status-indicator">
+                        <div class="label">Luftfuktighet</div>
+                        <div class="value medium" id="humidity">45%</div>
+                    </div>
+                    <div class="status-indicator">
+                        <div class="label">Lys</div>
+                        <div class="value off" id="sauna-light">Av</div>
+                    </div>
+                </div>
+            </div>
+            
+            
+            
+            <!-- Controls -->
+            <div class="card control-widget">
+                <div class="card-header">
+                    <h2>Styring</h2>
+                </div>
+                <div class="card-body">
+                    <div class="controls">
+                        <div class="control-group">
+                            <div class="label">Dør Lås</div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="door-lock-control">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="control-group">
+                            <div class="label">Ovn Termostat</div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="ovn-thermo-control" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="control-group">
+                            <div class="label">Ovn Status</div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="ovn-status-control" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Floorplan -->
+            <!-- <div class="card floorplan">
+                <div class="card-header">
+                    <h2>Elektrotegning</h2>
+                </div>
+                <div class="card-body">
+                    <img src="/api/placeholder/500/300" alt="Elektrotegning" id="elektro-tegning">
+                </div>
+            </div> -->
+            
+            <!-- Scene Controls -->
+            <div class="card scenes-widget">
+                <div class="card-header">
+                    <h2>Scene Styring</h2>
+                </div>
+                <div class="card-body">
+                    <div class="scene-buttons">
+                        <div class="scene-button" data-scene="0" onclick="activateScene(0)">
+                            <div class="icon-container">
+                                <svg class="icon-svg" viewBox="0 0 24 24">
+                                    <path fill="currentColor" d="M12,6V9L16,5L12,1V4A8,8 0 0,0 4,12C4,13.57 4.46,15.03 5.24,16.26L6.7,14.8C6.25,13.97 6,13 6,12A6,6 0 0,1 12,6M18.76,7.74L17.3,9.2C17.74,10.04 18,11 18,12A6,6 0 0,1 12,18V15L8,19L12,23V20A8,8 0 0,0 20,12C20,10.43 19.54,8.97 18.76,7.74Z" />
+                                </svg>
+                            </div>
+                            <span>1-PreHeat</span>
+                        </div>
+                        <div class="scene-button" data-scene="1" onclick="activateScene(1)">
+                            <div class="icon-container">
+                                <svg class="icon-svg" viewBox="0 0 24 24">
+                                    <path fill="currentColor" d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.67 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z" />
+                                </svg>
+                            </div>
+                            <span>2-Normal-lav</span>
+                        </div>
+                        <div class="scene-button active" data-scene="2" onclick="activateScene(2)">
+                            <div class="icon-container">
+                                <svg class="icon-svg" viewBox="0 0 24 24">
+                                    <path fill="currentColor" d="M17.66 11.2C17.43 10.9 17.15 10.64 16.89 10.38C16.22 9.78 15.46 9.35 14.82 8.72C13.33 7.26 13 4.85 13.95 3C13 3.23 12.17 3.75 11.46 4.32C8.87 6.4 7.85 10.07 9.07 13.22C9.11 13.32 9.15 13.42 9.15 13.55C9.15 13.77 9 13.97 8.8 14.05C8.57 14.15 8.33 14.09 8.14 13.93C8.08 13.88 8.04 13.83 8 13.76C6.87 12.33 6.69 10.28 7.45 8.64C5.78 10 4.87 12.3 5 14.47C5.06 14.97 5.12 15.47 5.29 15.97C5.43 16.57 5.7 17.17 6 17.7C7.08 19.43 8.95 20.67 10.96 20.92C13.1 21.19 15.39 20.8 17.03 19.32C18.86 17.66 19.5 15 18.56 12.72L18.43 12.46C18.22 12 17.66 11.2 17.66 11.2M14.5 17.5C14.22 17.74 13.76 18 13.4 18.1C12.28 18.5 11.16 17.94 10.5 17.28C11.69 17 12.4 16.12 12.61 15.23C12.78 14.43 12.46 13.77 12.33 13C12.21 12.26 12.23 11.63 12.5 10.94C12.69 11.32 12.89 11.7 13.13 12C13.9 13 15.11 13.44 15.37 14.8C15.41 14.94 15.43 15.08 15.43 15.23C15.46 16.05 15.1 16.95 14.5 17.5H14.5Z" />
+                                </svg>
+                            </div>
+                            <span>3-Normal-temp</span>
+                        </div>
+                        <div class="scene-button" data-scene="3" onclick="activateScene(3)">
+                            <div class="icon-container">
+                                <svg class="icon-svg" viewBox="0 0 24 24">
+                                    <path fill="currentColor" d="M19.3,12.61C19.3,15.7 16.7,18.2 13.61,18.2C11.81,18.2 10.21,17.3 9.21,15.9L7.71,17.4C9.11,19.2 11.21,20.3 13.61,20.3C17.9,20.3 21.4,16.8 21.4,12.61C21.4,10.21 20.3,8.11 18.5,6.71L17,8.21C18.4,9.21 19.3,10.81 19.3,12.61M6.11,12.61C6.11,9.61 8.61,7.11 11.61,7.11C13.51,7.11 15.11,8.01 16.11,9.41L17.61,7.91C16.21,6.11 14.11,5.01 11.61,5.01C7.31,5.01 3.91,8.51 3.91,12.71C3.91,15.11 5.01,17.21 6.81,18.61L8.31,17.11C6.91,16.11 6.11,14.51 6.11,12.61Z" />
+                                </svg>
+                            </div>
+                            <span>4-Normal-høy</span>
+                        </div>
+                        <div class="scene-button" data-scene="4" onclick="activateScene(4)">
+                            <div class="icon-container">
+                                <svg class="icon-svg" viewBox="0 0 24 24">
+                                    <path fill="currentColor" d="M12,2A7,7 0 0,0 5,9C5,11.38 6.19,13.47 8,14.74V17A1,1 0 0,0 9,18H15A1,1 0 0,0 16,17V14.74C17.81,13.47 19,11.38 19,9A7,7 0 0,0 12,2M9,21A1,1 0 0,0 10,22H14A1,1 0 0,0 15,21V20H9V21Z" />
+                                </svg>
+                            </div>
+                            <span>5-Vaskelys</span>
+                        </div>
+                        <div class="scene-button" data-scene="5" onclick="activateScene(5)">
+                            <div class="icon-container">
+                                <svg class="icon-svg" viewBox="0 0 24 24">
+                                    <path fill="currentColor" d="M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.5 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z" />
+                                </svg>
+                            </div>
+                            <span>6-End session</span>
+                        </div>
+                        <div class="scene-button" data-scene="6" onclick="activateScene(6)">
+                            <div class="icon-container">
+                                <svg class="icon-svg" viewBox="0 0 24 24">
+                                    <path fill="currentColor" d="M12,17A2,2 0 0,0 14,15C14,13.89 13.1,13 12,13A2,2 0 0,0 10,15A2,2 0 0,0 12,17M18,8A2,2 0 0,1 20,10V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V10C4,8.89 4.9,8 6,8H7V6A5,5 0 0,1 12,1A5,5 0 0,1 17,6V8H18M12,3A3,3 0 0,0 9,6V8H15V6A3,3 0 0,0 12,3Z" />
+                                </svg>
+                            </div>
+                            <span>7-Closed</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Temperature Chart -->
+            <div class="card chart-widget">
+                <div class="card-header">
+                    <h2>Temperaturhistorikk (siste 24t)</h2>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="temperature-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Door Activity Chart -->
+            <div class="card chart-widget">
+                <div class="card-header">
+                    <h2>Døraktivitet (siste 24t)</h2>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="door-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Generate dummy data for charts
+        function generateTemperatureData() {
+            const data = [];
+            const now = new Date();
+            for (let i = 24; i >= 0; i--) {
+                const time = new Date(now.getTime() - i * 60 * 60 * 1000);
+                // Generate temperature between 50-80 with some randomness
+                let temp;
+                if (i > 20) {
+                    temp = Math.floor(Math.random() * 10) + 20; // Startup phase
+                } else if (i > 18) {
+                    temp = Math.floor(Math.random() * 15) + 35; // Heating up
+                } else if (i > 4) {
+                    temp = Math.floor(Math.random() * 15) + 55; // Normal operation
+                } else {
+                    temp = Math.floor(Math.random() * 15) + 40; // Cooling down
+                }
+                
+                // Generate outdoor temperature with day/night cycle (colder at night)
+                let hourOfDay = (24 - i + new Date().getHours()) % 24;
+                let outdoorBaseTemp = hourOfDay >= 8 && hourOfDay <= 18 ? 15 : 10; // Warmer during day
+                let location = document.getElementById('current-location').textContent;
+                
+                // Adjust base temperature based on location
+                if (location === 'Mandal') outdoorBaseTemp += 2;
+                else if (location === 'Vennesla') outdoorBaseTemp -= 2;
+                else if (location === 'Kristiansand2') outdoorBaseTemp += 1;
+                
+                let outdoorTemp = outdoorBaseTemp + Math.sin(i/24 * Math.PI) * 5 + (Math.random() * 2 - 1);
+                outdoorTemp = Math.round(outdoorTemp * 10) / 10;
+                
+                data.push({
+                    time: time.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                    temp: temp,
+                    outdoorTemp: outdoorTemp
+                });
+            }
+            return data;
+        }
+        
+        function generateDoorData() {
+            const data = [];
+            const now = new Date();
+            const events = []; // Time when door was opened
+            
+            // Add some random door open events
+            events.push(now.getTime() - 23 * 60 * 60 * 1000); // Early morning
+            events.push(now.getTime() - 22 * 60 * 60 * 1000); // Morning opening
+            events.push(now.getTime() - 18 * 60 * 60 * 1000); // Morning maintenance
+            events.push(now.getTime() - 12 * 60 * 60 * 1000); // Noon
+            events.push(now.getTime() - 8 * 60 * 60 * 1000);  // Afternoon
+            events.push(now.getTime() - 4 * 60 * 60 * 1000);  // Evening
+            events.push(now.getTime() - 1 * 60 * 60 * 1000);  // Recent
+            
+            for (let i = 24; i >= 0; i--) {
+                const time = new Date(now.getTime() - i * 60 * 60 * 1000);
+                const timeStr = time.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                
+                // Check if door was open at this hour
+                const doorOpen = events.some(event => {
+                    const eventTime = new Date(event);
+                    return Math.abs(eventTime - time) < 30 * 60 * 1000; // Within 30 minutes
+                });
+                
+                data.push({
+                    time: timeStr,
+                    doorStatus: doorOpen ? 1 : 0
+                });
+            }
+            return data;
+        }
+        
+        // Initialize charts
+        function initCharts() {
+            const tempData = generateTemperatureData();
+            const doorData = generateDoorData();
+            
+            // Temperature Chart
+            const tempCtx = document.getElementById('temperature-chart').getContext('2d');
+            const tempChart = new Chart(tempCtx, {
+                type: 'line',
+                data: {
+                    labels: tempData.map(item => item.time),
+                    datasets: [{
+                        label: 'Badstu Temperatur (°C)',
+                        data: tempData.map(item => item.temp),
+                        borderColor: '#e55039',
+                        backgroundColor: 'rgba(192, 57, 43, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: 'Utetemperatur (°C)',
+                        data: tempData.map(item => item.outdoorTemp),
+                        borderColor: '#7F6E7C',
+                        backgroundColor: 'rgba(41, 128, 185, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            suggestedMax: 85
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            });
+            
+            // Door Chart
+            const doorCtx = document.getElementById('door-chart').getContext('2d');
+            const doorChart = new Chart(doorCtx, {
+                type: 'bar',
+                data: {
+                    labels: doorData.map(item => item.time),
+                    datasets: [{
+                        label: 'Dør Aktivitet',
+                        data: doorData.map(item => item.doorStatus),
+                        backgroundColor: '7F6E7C',
+                        borderColor: '#7F6E7C',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 1,
+                            ticks: {
+                                stepSize: 1,
+                                callback: function(value) {
+                                    return value === 0 ? 'Lukket' : 'Åpen';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Toggle status indicators
+        function toggleStatusIndicator(id, value, options) {
+            const element = document.getElementById(id);
+            
+            // Reset all classes
+            element.classList.remove('on', 'off', 'hot', 'medium', 'cool');
+            
+            if (options) {
+                // For special indicators with multiple states
+                if (options.type === 'temperature') {
+                    if (value > 65) {
+                        element.classList.add('hot');
+                    } else if (value > 40) {
+                        element.classList.add('medium');
+                    } else {
+                        element.classList.add('cool');
+                    }
+                    element.textContent = value + '°C';
+                } else if (options.type === 'door') {
+                    if (value === 1) {
+                        element.classList.add('on');
+                        element.textContent = 'Åpen';
+                    } else {
+                        element.classList.add('off');
+                        element.textContent = 'Lukket';
+                    }
+                } else if (options.type === 'scene') {
+                    element.classList.add('medium');
+                    element.textContent = value;
+                }
+            } else {
+                // For standard on/off indicators
+                if (value === 1) {
+                    element.classList.add('on');
+                    element.textContent = 'På';
+                } else {
+                    element.classList.add('off');
+                    element.textContent = 'Av';
+                }
+            }
+        }
+        
+        // Scene activation
+        function activateScene(sceneIndex) {
+            // Remove active class from all scene buttons
+            document.querySelectorAll('.scene-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // Add active class to selected scene button
+            document.querySelector(`.scene-button[data-scene="${sceneIndex}"]`).classList.add('active');
+            
+            // Update scene status
+            const sceneNames = [
+                '1-PreHeat',
+                '2-Normal-lav',
+                '3-Normal-temp',
+                '4-Normal-høy',
+                '5-Vaskelys',
+                '6-End session',
+                '7-Closed'
+            ];
+            
+            toggleStatusIndicator('active-scene', sceneNames[sceneIndex], { type: 'scene' });
+            
+            // Simulate scene changes
+            if (sceneIndex === 0) { // PreHeat
+                toggleStatusIndicator('badstu-temp', 45, { type: 'temperature' });
+                toggleStatusIndicator('badstu-ovn', 1);
+            } else if (sceneIndex === 1) { // Normal-lav
+                toggleStatusIndicator('badstu-temp', 60, { type: 'temperature' });
+                toggleStatusIndicator('badstu-ovn', 1);
+            } else if (sceneIndex === 2) { // Normal-temp
+                toggleStatusIndicator('badstu-temp', 70, { type: 'temperature' });
+                toggleStatusIndicator('badstu-ovn', 1);
+            } else if (sceneIndex === 3) { // Normal-høy
+                toggleStatusIndicator('badstu-temp', 80, { type: 'temperature' });
+                toggleStatusIndicator('badstu-ovn', 1);
+            } else if (sceneIndex === 4) { // Vaskelys
+                toggleStatusIndicator('badstu-temp', 30, { type: 'temperature' });
+                toggleStatusIndicator('badstu-ovn', 0);
+                document.getElementById('ovn-status-control').checked = false;
+            } else if (sceneIndex === 5) { // End session
+                toggleStatusIndicator('badstu-temp', 35, { type: 'temperature' });
+                toggleStatusIndicator('badstu-ovn', 0);
+                document.getElementById('ovn-status-control').checked = false;
+            } else if (sceneIndex === 6) { // Closed
+                toggleStatusIndicator('badstu-temp', 22, { type: 'temperature' });
+                toggleStatusIndicator('badstu-ovn', 0);
+                document.getElementById('ovn-status-control').checked = false;
+                document.getElementById('door-lock-control').checked = true;
+            }
+            
+            console.log(`Aktivert scene: ${sceneNames[sceneIndex]} (verdi: ${sceneIndex})`);
+            // This would normally publish to MQTT: SmeigeS/Kristiasand/Scene/ = sceneIndex
+        }
+        
+        // Initialize toggle controls
+        function initControls() {
+            // Door Lock Control
+            document.getElementById('door-lock-control').addEventListener('change', function(e) {
+                const lockStatus = e.target.checked ? 1 : 0;
+                console.log(`Endret dørlås: ${lockStatus === 1 ? 'Låst' : 'Ulåst'}`);
+                // This would normally publish to MQTT: SmeigeS/Kristiasand/Dør/Lås = lockStatus
+            });
+            
+            // Ovn Thermostat Control
+            document.getElementById('ovn-thermo-control').addEventListener('change', function(e) {
+                const thermoStatus = e.target.checked ? 1 : 0;
+                console.log(`Endret termostat: ${thermoStatus === 1 ? 'På' : 'Av'}`);
+                // This would normally publish to MQTT: SmeigeS/Kristiasand/Ovn/Termostat = thermoStatus
+            });
+            
+            // Ovn Status Control
+            document.getElementById('ovn-status-control').addEventListener('change', function(e) {
+                const ovnStatus = e.target.checked ? 1 : 0;
+                toggleStatusIndicator('badstu-ovn', ovnStatus);
+                console.log(`Endret ovnsstatus: ${ovnStatus === 1 ? 'På' : 'Av'}`);
+                // This would normally publish to MQTT: SmeigeS/Kristiasand/Ovn/Status = ovnStatus
+            });
+        }
+        
+        // Simulate real-time updates
+        function simulateRealTimeUpdates() {
+            // Simulate random door open/close events
+            setInterval(() => {
+                if (Math.random() > 0.95) { // 5% chance of door activity
+                    const doorStatus = document.getElementById('badstu-door').textContent === 'Lukket' ? 1 : 0;
+                    toggleStatusIndicator('badstu-door', doorStatus, { type: 'door' });
+                    
+                    // If door opened, make some changes
+                    if (doorStatus === 1) {
+                        // Turn on light in sauna
+                        toggleStatusIndicator('sauna-light', 1);
+                        
+                        // Turn off light after some time
+                        setTimeout(() => {
+                            // 50% chance to turn off light
+                            if (Math.random() > 0.5) {
+                                toggleStatusIndicator('sauna-light', 0);
+                            }
+                        }, 10000);
+                    }
+                }
+                
+                // Slight temperature variation
+                const currentTemp = parseInt(document.getElementById('badstu-temp').textContent);
+                // Only update if temperature is not being changed by scene
+                if (Math.random() > 0.7) { // 30% chance of temperature change
+                    const variation = Math.random() > 0.5 ? 1 : -1;
+                    toggleStatusIndicator('badstu-temp', currentTemp + variation, { type: 'temperature' });
+                }
+                
+                // Update outdoor temperature slightly
+                const outdoorTemp = parseFloat(document.getElementById('outdoor-temp').textContent);
+                if (Math.random() > 0.8) { // 20% chance of temperature change
+                    const variation = (Math.random() > 0.5 ? 0.5 : -0.5);
+                    toggleStatusIndicator('outdoor-temp', outdoorTemp + variation, { type: 'temperature' });
+                }
+                
+                // Update humidity slightly
+                const humidity = parseInt(document.getElementById('humidity').textContent);
+                if (Math.random() > 0.9) { // 10% chance of humidity change
+                    const variation = Math.random() > 0.5 ? 1 : -1;
+                    const newHumidity = humidity + variation;
+                    if (newHumidity >= 30 && newHumidity <= 60) {
+                        document.getElementById('humidity').textContent = newHumidity + '%';
+                    }
+                }
+            }, 5000); // Check every 5 seconds
+        }
+        
+        // Location change function
+        function changeLocation(location) {
+            document.getElementById('current-location').textContent = location;
+            
+            // Update data based on location
+            let temperatures = {
+                'Kristiansand': 60,
+                'Kristiansand2': 65,
+                'Vennesla': 58,
+                'Mandal': 63
+            };
+            
+            let outdoorTemps = {
+                'Kristiansand': 12,
+                'Kristiansand2': 13,
+                'Vennesla': 10,
+                'Mandal': 14
+            };
+            
+            let humidities = {
+                'Kristiansand': 45,
+                'Kristiansand2': 48,
+                'Vennesla': 50,
+                'Mandal': 55
+            };
+            
+            // Update displays
+            toggleStatusIndicator('badstu-temp', temperatures[location], { type: 'temperature' });
+            toggleStatusIndicator('outdoor-temp', outdoorTemps[location], { type: 'temperature' });
+            document.getElementById('humidity').textContent = humidities[location] + '%';
+            
+            // Reset scenes
+            document.querySelectorAll('.scene-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            document.querySelector('.scene-button[data-scene="2"]').classList.add('active');
+            toggleStatusIndicator('active-scene', '3-Normal-temp', { type: 'scene' });
+            
+            // Reset controls to default
+            document.getElementById('door-lock-control').checked = false;
+            document.getElementById('ovn-thermo-control').checked = true;
+            document.getElementById('ovn-status-control').checked = true;
+            
+            // Generate new chart data
+            initCharts();
+            
+            console.log(`Byttet til lokasjon: ${location}`);
+            // This would normally update MQTT topic prefix from SmeigeS/Kristiasand to SmeigeS/[location]
+        }
+        
+        // Initialize application
+        window.onload = function() {
+            // Load electro drawing from file if available
+            // For demo purposes, we'll just use a placeholder
+            
+            // Initialize controls and charts
+            initControls();
+            initCharts();
+            
+            // Set initial status
+            toggleStatusIndicator('badstu-door', 0, { type: 'door' });
+            toggleStatusIndicator('badstu-temp', 60, { type: 'temperature' });
+            toggleStatusIndicator('badstu-ovn', 1);
+            toggleStatusIndicator('outdoor-temp', 12, { type: 'temperature' });
+            toggleStatusIndicator('sauna-light', 0);
+            
+            // Start simulation
+            simulateRealTimeUpdates();
+        };
+    </script>
+</body>
+</html>
