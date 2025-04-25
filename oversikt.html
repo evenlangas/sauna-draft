@@ -110,11 +110,11 @@
         }
         
         .stat-box.temperature {
-            background-color: var(--danger);
+            background-color: var(--secondary);
         }
         
         .stat-box.alarmer {
-            background-color: var(--warning);
+            background-color: var(--danger);
         }
         
         .stat-box.heater {
@@ -186,8 +186,8 @@
         
         .alarm-badge {
             position: absolute;
-            top: -10px;
-            right: -10px;
+            top: 10px;
+            right: 10px;
             background-color: var(--danger);
             color: white;
             width: 40px;
@@ -277,7 +277,7 @@
                             <div class="stat-label">Temperatur</div>
                             <div class="stat-value">55°C</div>
                         </div>
-                        <div class="stat-box alarmer">
+                        <div class="stat-box temperature">
                             <div class="stat-label">Aktive alarmer</div>
                             <div class="stat-value">0</div>
                         </div>
@@ -342,7 +342,7 @@
             
             <!-- Mandal Sauna -->
             <div class="sauna-card" onclick="location.href='mandal.html'">
-                <div class="alarm-badge">5</div>
+                <!-- <div class="alarm-badge">5</div> -->
                 <div class="sauna-header">
                     <h2>Mandal</h2>
                 </div>
@@ -353,9 +353,9 @@
                             <div class="stat-label">Temperatur</div>
                             <div class="stat-value">68°C</div>
                         </div>
-                        <div class="stat-box alarmer">
+                        <div class="stat-box temperature">
                             <div class="stat-label">Aktive alarmer</div>
-                            <div class="stat-value">5</div>
+                            <div class="stat-value">0</div>
                         </div>
                         <div class="stat-box heater">
                             <div class="stat-label">Ovn</div>
